@@ -1,0 +1,16 @@
+{
+	"email_template" : "<html><head></head><body>Hello,<br /><br />Here are some mountaineers activities you might be interested in. <br /><br />{0}<body /><html />",
+	"email_subject" : "Fresh mountaineers activities",
+	"email_username" : "foo@gmail.com",
+	"email_password" : "example",
+	"rules" : [
+		{
+			"rule_name" : "EasyKayakingRule",
+			"distribution_list" : ["person1@gmail.com"]
+		},
+		{
+			"rule_name" : "BasicClimbingRule",
+			"distribution_list" : ["person1@gmail.com", "person2@gmail.com"]
+		}
+	]
+}

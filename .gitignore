@@ -57,5 +57,7 @@ docs/_build/
 target/
 
 realConfig.json
+privateConfig.json
 realConfig.json_old
 *.cache
+.vscode

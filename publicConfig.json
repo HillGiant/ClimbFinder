@@ -1,0 +1,10 @@
+{
+	"email_template" : "<html><head></head><body>Hello,<br /><br />Here are some mountaineers activities you might be interested in. If you have any issues, send mail to Matt at matlue.dev@gmail.com and he will try to sort it out. If you know someone who wants to recieve this mail, have them join the google group here: https://groups.google.com/forum/#!forum/{1}<br /><br />{0}<body /><html />",
+	"email_subject" : "Fresh mountaineers activities",
+	"rules" : [
+		{
+			"rule_name" : "Glacier Climb",
+			"distribution_lists" : ["seattle-mountaineers-glacier-climbing-notifications"]
+		}
+	]
+}

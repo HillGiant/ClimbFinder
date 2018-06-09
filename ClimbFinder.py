@@ -14,7 +14,8 @@ print("Hello World")
 
 ACTIVITIES_PER_PAGE = 50
 BASE_URL = r'https://www.mountaineers.org/explore/activities/@@faceted_query?b_start%5B%5D=0&b_start:int={0}'
-CONFIG_FILE = "realConfig.json"
+PUBLIC_CONFIG_FILE = "publicConfig.json"
+PRIVATE_CONFIG_FILE = "privateConfig.json"
 
 class ActivityRaw:
     def __init__(self, activity_div):
@@ -148,6 +149,12 @@ class BasicClimbingRule:
 		
     rule_name = "Basic Climb"
 
+class GlacierClimbingRule:
+    def match(self, activity):
+        return (activity.type == "Glacier Climb") and activity.participant_availability > 0 and activity.registration_status != "Closed"
+		
+    rule_name = "Glacier Climb"
+
 class BasicClimbingLeaderRule:
     def match(self, activity):
         return (activity.type == "Basic Alpine Climb" or activity.type == "Glacier Climb") and activity.leader_availability > 0 and activity.registration_status != "Closed"
@@ -166,16 +173,10 @@ class ScramblingRule:
 		
     rule_name = "Alpine Scramble"
 
-class EasyKayakingRule:
+class KayakingRule:
     def match(self, activity):
         return (
-			activity.type == "Sea Kayak" and 
-			(
-				activity.difficulty == "Sea Kayak I" or 
-				activity.difficulty == "Sea Kayak II" or 
-				activity.difficulty == "Sea Kayak II+" or 
-				activity.difficulty == "Sea Kayak I/II"
-			) and 
+			activity.type == "Sea Kayak"  and 
 			activity.participant_availability > 0 and 
 			activity.registration_status != "Closed"
                 )
@@ -195,13 +196,13 @@ def getAllActivities():
         page_index = ACTIVITIES_PER_PAGE + page_index
     return activities
 
-def sendEmail(content, targets, config):
-	fromaddr = config["email_username"]
+def sendEmail(content, subject, targets, privateConfig):
+	fromaddr = privateConfig["email_username"]
 	toaddrs  = ', '.join(targets)
-	username = config["email_username"]
-	password = config["email_password"]
+	username = privateConfig["email_username"]
+	password = privateConfig["email_password"]
 	msg = MIMEText(content, 'html')
-	msg['Subject'] = config["email_subject"]
+	msg['Subject'] = subject
 	msg['From'] = fromaddr
 	msg['To'] = toaddrs
 
@@ -212,11 +213,11 @@ def sendEmail(content, targets, config):
 	server.sendmail(fromaddr, targets, msg.as_string())
 	server.quit()
 
-def execute(config, rule_factory):
+def execute(publicConfig, privateConfig, rule_factory):
     activities = getAllActivities()
-    rule_to_activities = build_rule_to_activities(activities, [rule["rule_name"] for rule in config["rules"]])
+    rule_to_activities = build_rule_to_activities(activities, [rule["rule_name"] for rule in publicConfig["rules"]])
     for name, rules in name_to_rules.items():
-        has_content = False;
+        has_content = False
         email_body = ""
         for rule in rules:
             if(len(rule_to_activities[rule["rule_name"]]) != 0):
@@ -225,7 +226,7 @@ def execute(config, rule_factory):
 
         if(has_content):
             print("sending email to {0}".format(name))
-            sendEmail(config["email_template"].format(email_body), [name], config)
+            sendEmail(publicConfig["email_template"].format(email_body, name), publicConfig["email_subject"], [name + "@googlegroups.com"], privateConfig)
 
 def build_rule_to_activities(activities, rule_names):
     rule_to_activites = {}
@@ -259,11 +260,13 @@ def set_seen_links(rule_name, filtered_activities):
     outfile.close()
         
 
-configFile = open(CONFIG_FILE, 'r')
-config = json.load(configFile)
+publicConfigFile = open(PUBLIC_CONFIG_FILE, 'r')
+publicConfig = json.load(publicConfigFile)
+privateConfigFile = open(PRIVATE_CONFIG_FILE, 'r')
+privateConfig = json.load(privateConfigFile)
 name_to_rules = {}
-for rule_group in config["rules"]:
-    for email in rule_group["distribution_list"]:
+for rule_group in publicConfig["rules"]:
+    for email in rule_group["distribution_lists"]:
         if not email in name_to_rules:
             name_to_rules[email] = []
         name_to_rules[email].append(rule_group)
@@ -273,11 +276,12 @@ rule_factory.register(BasicClimbingRule())
 rule_factory.register(BasicClimbingLeaderRule())
 rule_factory.register(IntermediateClimbingRule())
 rule_factory.register(ScramblingRule())
-rule_factory.register(EasyKayakingRule())
-print(config["email_username"])                           
-print(config["email_template"])                          
-print(config["email_subject"])
+rule_factory.register(KayakingRule())
+rule_factory.register(GlacierClimbingRule())
+print(privateConfig["email_username"])                           
+print(publicConfig["email_template"])                          
+print(publicConfig["email_subject"])
 
 while True:
-    execute(config, rule_factory)
+    execute(publicConfig, privateConfig, rule_factory)
     time.sleep(3600)

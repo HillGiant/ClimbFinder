@@ -1,21 +1,24 @@
 import json
 import os.path
-import urllib.request
+import urllib
 import re
 import time
 import smtplib
+import sys
 from time import mktime
 from datetime import datetime
 from bs4 import BeautifulSoup
 from email.mime.text import MIMEText
 from dateutil.parser import parse
 
-print("Hello World")
+print("{0} Hello World".format(datetime.now()))
 
 ACTIVITIES_PER_PAGE = 50
 BASE_URL = r'https://www.mountaineers.org/explore/activities/@@faceted_query?b_start%5B%5D=0&b_start:int={0}'
 PUBLIC_CONFIG_FILE = "publicConfig.json"
-PRIVATE_CONFIG_FILE = "privateConfig.json"
+
+email_username = sys.argv[1]
+email_password = sys.argv[2]
 
 class ActivityRaw:
     def __init__(self, activity_div):
@@ -182,25 +185,25 @@ class KayakingRule:
                 )
 		
     rule_name = "Kayaking"
-
+	
 def getAllActivities():
     activities = []
     page_index = 0
     read_more = True
     while(read_more):
-        page = urllib.request.urlopen(BASE_URL.format(str(page_index))).read()
-        soup = BeautifulSoup(page)
+        page = urllib.urlopen(BASE_URL.format(str(page_index))).read()
+        soup =  BeautifulSoup(page, "html.parser")
         activity_divs = soup.find_all(class_="result-item contenttype-mtneers-activity")
         activities.extend([Activity(ActivityRaw(activity_div))for activity_div in activity_divs])
         read_more = len(activity_divs) != 0
         page_index = ACTIVITIES_PER_PAGE + page_index
     return activities
 
-def sendEmail(content, subject, targets, privateConfig):
-	fromaddr = privateConfig["email_username"]
+def sendEmail(content, subject, targets, email_username, email_password):
+	fromaddr = email_username
 	toaddrs  = ', '.join(targets)
-	username = privateConfig["email_username"]
-	password = privateConfig["email_password"]
+	username = email_username
+	password = email_password
 	msg = MIMEText(content, 'html')
 	msg['Subject'] = subject
 	msg['From'] = fromaddr
@@ -213,7 +216,7 @@ def sendEmail(content, subject, targets, privateConfig):
 	server.sendmail(fromaddr, targets, msg.as_string())
 	server.quit()
 
-def execute(publicConfig, privateConfig, rule_factory):
+def execute(publicConfig, email_username, email_password, rule_factory):
     activities = getAllActivities()
     rule_to_activities = build_rule_to_activities(activities, [rule["rule_name"] for rule in publicConfig["rules"]])
     for name, rules in name_to_rules.items():
@@ -226,7 +229,7 @@ def execute(publicConfig, privateConfig, rule_factory):
 
         if(has_content):
             print("sending email to {0}".format(name))
-            sendEmail(publicConfig["email_template"].format(email_body, name), publicConfig["email_subject"], [name + "@googlegroups.com"], privateConfig)
+            sendEmail(publicConfig["email_template"].format(email_body, name), publicConfig["email_subject"], [name + "@googlegroups.com"], email_username, email_password)
 
 def build_rule_to_activities(activities, rule_names):
     rule_to_activites = {}
@@ -239,9 +242,8 @@ def build_rule_to_activities(activities, rule_names):
 
         unseen_activities = [activity for activity in filtered_activities if not activity.link in seen_links]
         rule_to_activites[rule_name] = unseen_activities
-        print("For {3}: {0} activities total. {1} met the criteria. {2} have not been seen before".format(len(activities), len(filtered_activities), len(unseen_activities), rule_name))
+        print("{4} For {3}: {0} activities total. {1} met the criteria. {2} have not been seen before".format(len(activities), len(filtered_activities), len(unseen_activities), rule_name, datetime.now()))
     return rule_to_activites
-
 
 def get_seen_links(rule_name):
     file_name = rule_name + ".cache"
@@ -258,12 +260,10 @@ def set_seen_links(rule_name, filtered_activities):
     for link in [activity.link for activity in filtered_activities]:
         outfile.write("{0}\n".format(link))
     outfile.close()
-        
-
+         
 publicConfigFile = open(PUBLIC_CONFIG_FILE, 'r')
 publicConfig = json.load(publicConfigFile)
-privateConfigFile = open(PRIVATE_CONFIG_FILE, 'r')
-privateConfig = json.load(privateConfigFile)
+
 name_to_rules = {}
 for rule_group in publicConfig["rules"]:
     for email in rule_group["distribution_lists"]:
@@ -278,10 +278,10 @@ rule_factory.register(IntermediateClimbingRule())
 rule_factory.register(ScramblingRule())
 rule_factory.register(KayakingRule())
 rule_factory.register(GlacierClimbingRule())
-print(privateConfig["email_username"])                           
+print(email_username)                   
 print(publicConfig["email_template"])                          
 print(publicConfig["email_subject"])
 
 while True:
-    execute(publicConfig, privateConfig, rule_factory)
-    time.sleep(3600)
+    execute(publicConfig, email_username, email_password, rule_factory)
+    time.sleep(600)

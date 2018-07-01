@@ -106,9 +106,9 @@ class Activity:
              "Name:                " + self.name,
              "Start Date: -------- " + self.start_date.strftime("%a, %b %d, %Y"),
              "End Date:            " + (self.end_date.strftime("%a, %b %d, %Y") if self.end_date else ""),
-             "Days: -------------- " + str(self.number_of_days),
-             "Availability:        " + str(self.participant_availability),
-             "Leader Availability: " + str(self.leader_availability),
+             "Days: -------------- " + unicode(self.number_of_days),
+             "Availability:        " + unicode(self.participant_availability),
+             "Leader Availability: " + unicode(self.leader_availability),
              "Status:              " + status,
              "Difficulty: -------- " + self.difficulty,
              "Prereqs:             " + self.prereqs,
@@ -120,18 +120,18 @@ class Activity:
         status = self.registration_status
         if(self.registration_info):
             status = status + " (" + self.registration_info + ")"
-        return "\n".join(
+        return unicode("\n").join(
             (
              "<div>",
-             "<a href={0}>{1}</a>".format(self.link, self.name),
+             unicode("<a href={0}>{1}</a>").format(self.link, self.name),
              "<table>",
-             "<tr><td>{0}</td><td>{1}</td></tr>".format("Difficulty", self.difficulty),
-             "<tr><td>{0}</td><td>{1}</td></tr>".format("Start Date", self.start_date.strftime("%a, %b %d, %y")),
-             "<tr><td>{0}</td><td>{1}</td></tr>".format("End Date", (self.end_date.strftime("%a, %b %d, %y") if self.end_date else "")),
-             "<tr><td>{0}</td><td>{1}</td></tr>".format("Days", self.number_of_days),
-             "<tr><td>{0}</td><td>{1}</td></tr>".format("Availability", str(self.participant_availability) + " open spots"),
-             "<tr><td>{0}</td><td>{1}</td></tr>".format("Status", status),
-             "<tr><td>{0}</td><td>{1}</td></tr>".format("Branch", self.branch),
+             unicode("<tr><td>{0}</td><td>{1}</td></tr>").format("Difficulty", self.difficulty),
+             unicode("<tr><td>{0}</td><td>{1}</td></tr>").format("Start Date", self.start_date.strftime("%a, %b %d, %y")),
+             unicode("<tr><td>{0}</td><td>{1}</td></tr>").format("End Date", (self.end_date.strftime("%a, %b %d, %y") if self.end_date else "")),
+             unicode("<tr><td>{0}</td><td>{1}</td></tr>").format("Days", self.number_of_days),
+             unicode("<tr><td>{0}</td><td>{1}</td></tr>").format("Availability", unicode(self.participant_availability) + " open spots"),
+             unicode("<tr><td>{0}</td><td>{1}</td></tr>").format("Status", status),
+             unicode("<tr><td>{0}</td><td>{1}</td></tr>").format("Branch", self.branch),
              "</table>",
              "</div>",
              ))
@@ -204,7 +204,7 @@ def sendEmail(content, subject, targets, email_username, email_password):
 	toaddrs  = ', '.join(targets)
 	username = email_username
 	password = email_password
-	msg = MIMEText(content, 'html')
+	msg = MIMEText(content, 'html', "utf-8")
 	msg['Subject'] = subject
 	msg['From'] = fromaddr
 	msg['To'] = toaddrs
@@ -229,7 +229,7 @@ def execute(publicConfig, email_username, email_password, rule_factory):
 
         if(has_content):
             print("sending email to {0}".format(name))
-            sendEmail(publicConfig["email_template"].format(email_body, name), publicConfig["email_subject"], [name + "@googlegroups.com"], email_username, email_password)
+            sendEmail(publicConfig["email_template"].format(email_body, name), publicConfig["email_subject"].format(rules[0]["rule_name"]), [name + "@googlegroups.com"], email_username, email_password)
 
 def build_rule_to_activities(activities, rule_names):
     rule_to_activites = {}

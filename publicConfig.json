@@ -1,22 +1,26 @@
 {
-	"email_template" : "<html><head></head><body>Hello,<br /><br />Here are some mountaineers activities you might be interested in. If you have any issues, send mail to Matt at matlue.dev@gmail.com and he will try to sort it out. If you know someone who wants to recieve this mail, have them <a href=\"https://groups.google.com/forum/#!forum/{1}\">join the google group here</a> <br /><br />If you are interested in other types of activities, you might one to check out one of these groups:<br /><a href=\"https://groups.google.com/forum/#!forum/seattle-mountaineers-glacier-climbing-notifications\">Just Glacier Climbs</a><br /><a href=\"https://groups.google.com/forum/#!forum/seattle-mountaineers-basic-climbing-notifications\">All Basic Climbs</a><br /><a href=\"https://groups.google.com/forum/#!forum/seattle-mountaineers-basic-climbing-leader-notifications\">Basic Climb Leaders</a><br /><a href=\"https://groups.google.com/forum/#!forum/seattle-mountaineers-alpine-scramble-notifications\">Alpine Scrambles</a><br /><br />{0}<body /><html />",
+	"email_template" : "<html><head></head><body>Hello,<br /><br />Here are some mountaineers activities you might be interested in. If you have any issues, send mail to Matt at matlue.dev@gmail.com and he will try to sort it out. If you know someone who wants to recieve this mail, have them <a href=\"https://groups.google.com/forum/#!forum/{1}\">join the google group here</a> <br /><br />If you are interested in other types of activities, you might one to check out one of these groups:<br /><a href=\"https://groups.google.com/forum/#!forum/seattle-mountaineers-glacier-climbing-notifications\">Just Glacier Climbs</a><br /><a href=\"https://groups.google.com/forum/#!forum/seattle-mountaineers-basic-climbing-notifications\">All Basic Climbs</a><br /><a href=\"https://groups.google.com/forum/#!forum/seattle-mountaineers-basic-climbing-leader-notifications\">Basic Climb Leaders</a><br /><a href=\"https://groups.google.com/forum/#!forum/seattle-mountaineers-alpine-scramble-notifications\">Alpine Scrambles</a><br /><a href=\"https://groups.google.com/forum/#!forum/seattle-mountaineers-intermediate-climbing-notifications\">Intermediate Climbs</a><br /><br />{0}<body /><html />",
 	"email_subject" : "Fresh {0} activities",
 	"rules" : [
 		{
 			"rule_name" : "Glacier Climb",
-			"distribution_lists" : ["seattle-mountaineers-glacier-climbing-notifications"]
+			"distribution_lists" : ["mountaineers-glacier-climbing-notifications"]
 		},
 		{
 			"rule_name" : "Basic Climb",
-			"distribution_lists" : ["seattle-mountaineers-basic-climbing-notifications"]
+			"distribution_lists" : ["mountaineers-basic-climbing-notifications"]
 		},
 		{
 			"rule_name" : "Basic Climb Leader",
-			"distribution_lists" : ["seattle-mountaineers-basic-climbing-leader-notifications"]
+			"distribution_lists" : ["mountaineers-basic-climbing-leader-notifications"]
 		},
 		{
 			"rule_name" : "Alpine Scramble",
-			"distribution_lists" : ["seattle-mountaineers-alpine-scramble-notifications"]
+			"distribution_lists" : ["mountaineers-alpine-scramble-notifications"]
+		},
+		{
+			"rule_name" : "Intermediate Climb",
+			"distribution_lists" : ["mountaineers-intermediate-climbing-notifications"]
 		}
 	]
 }
